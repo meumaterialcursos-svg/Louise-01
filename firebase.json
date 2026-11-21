@@ -1,0 +1,26 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "README.md",
+      "ARQUITETURA-V4.md",
+      "launch-config.json",
+      "firestore.rules",
+      "firestore.indexes.json",
+      "firebase-config.example.js"
+    ],
+    "headers": [
+      { "source": "/sw.js", "headers": [ { "key": "Cache-Control", "value": "no-cache" } ] },
+      { "source": "/manifest.webmanifest", "headers": [ { "key": "Content-Type", "value": "application/manifest+json" } ] },
+      { "source": "**/*.@(js|css|html)", "headers": [ { "key": "Cache-Control", "value": "no-cache" } ] },
+      { "source": "/icons/**", "headers": [ { "key": "Cache-Control", "value": "public, max-age=604800" } ] }
+    ]
+  }
+}

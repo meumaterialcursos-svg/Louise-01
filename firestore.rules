@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// Cada usuário autenticado só enxerga e grava dentro de users/{seu-uid}/...
+// Todo o resto fica bloqueado. Publique com: firebase deploy --only firestore:rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // "ponteiro" da sincronização (revisão atual dos dados)
+    match /users/{uid}/sync/{docId} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid);
+    }
+
+    // pedaços do banco (JSON dividido por causa do limite de 1 MiB por documento)
+    match /users/{uid}/chunks/{chunkId} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['p', 'rev', 'i', 'd'])
+        && request.resource.data.d is string
+        && request.resource.data.d.size() <= 600000;
+    }
+
+    // bloqueia qualquer outro caminho
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
