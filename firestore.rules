@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Cada conta só enxerga e altera os próprios dados: users/{uid}/items/*
+    // (um documento por registro: aluno, aula, lançamento, foto, configuração...)
+    match /users/{uid}/items/{itemId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['c', 'id', 'j', 'h', 'u', 'd'])
+        && request.resource.data.c is string
+        && request.resource.data.id is string
+        && request.resource.data.j is string
+        && request.resource.data.j.size() <= 900000;
+    }
+
+    // Todo o resto fica bloqueado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
